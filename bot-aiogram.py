@@ -62,7 +62,25 @@ async def handle_start(message: types.Message):
     else:
         await Registration.name.set()
         await message.answer("Привет! Для регистрации введите ваше имя:")
+                                                    # Обработчик /uppass
+@dp.message_handler(commands=['uppass'])
+async def handle_uppass(message: types.Message):
+    user_id = message.chat.id
+    if not db.get_user(user_id):
+        await message.answer("Вы еще не зарегистрированы. Введите /start для регистрации.")
+    else:
+        await UpdatePassword.new_password.set()
+        await message.answer("Введите ваш новый пароль:")
 
+                                                    # Обработчик /upusername
+@dp.message_handler(commands=['upusername'])
+async def handle_upusername(message: types.Message):
+    user_id = message.chat.id
+    if not db.get_user(user_id):
+        await message.answer("Вы еще не зарегистрированы. Введите /start для регистрации.")
+    else:
+        await UpdateUsername.new_username.set()
+        await message.answer("Введите ваше новое имя пользователя:")
 
 
 
@@ -96,6 +114,32 @@ async def process_password(message: types.Message, state: FSMContext):
             await message.answer("Регистрация успешно завершена!")
         except ValueError as e:
             await message.answer(str(e))
+    
+    await state.finish()
+
+                                                    # Обработчики обновления пароля
+@dp.message_handler(state=UpdatePassword.new_password)
+async def process_new_password(message: types.Message, state: FSMContext):
+    user_id = message.chat.id
+    new_password = message.text
+    try:
+        db.update_password(user_id, new_password)
+        await message.answer("Ваш пароль успешно обновлен!")
+    except ValueError as e:
+        await message.answer(str(e))
+    
+    await state.finish()
+
+                                                    # Обработчики обновления username
+@dp.message_handler(state=UpdateUsername.new_username)
+async def process_new_username(message: types.Message, state: FSMContext):
+    user_id = message.chat.id
+    new_username = message.text
+    try:
+        db.update_username(user_id, new_username)
+        await message.answer("Ваше имя пользователя успешно обновлено!")
+    except ValueError as e:
+        await message.answer(str(e))
     
     await state.finish()
 
