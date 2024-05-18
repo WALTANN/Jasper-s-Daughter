@@ -62,3 +62,21 @@ class Database:
         if user:
             return user['commands']
         return []
+
+    def delete_command(self, user_id, command_name):
+        user = self.get_user(user_id)
+        if user:
+            user['commands'] = [cmd for cmd in user['commands'] if cmd['name'] != command_name]
+            self.save_data()
+        else:
+            raise ValueError("Пользователь не найден.")
+        
+    def delete_user(self, user_id):
+        if str(user_id) in self.users:
+            del self.users[str(user_id)]
+            self.save_data()
+        else:
+            raise ValueError("Пользователь не найден.")
+        
+    def get_all_users(self):
+        return {user_id: user_data['name'] for user_id, user_data in self.users.items()}
