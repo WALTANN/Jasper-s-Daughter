@@ -29,3 +29,22 @@ class Database:
             'commands': []
         }
         self.save_data()
+        
+    def get_user(self, user_id):
+        return self.users.get(str(user_id))
+
+    def update_password(self, user_id, new_password):
+        user = self.get_user(user_id)
+        if user:
+            user['password'] = new_password
+            self.save_data()
+        else:
+            raise ValueError("Пользователь не найден.")
+
+    def update_username(self, user_id, new_username):
+        user = self.get_user(user_id)
+        if user:
+            user['name'] = new_username
+            self.save_data()
+        else:
+            raise ValueError("Пользователь не найден.")
