@@ -48,3 +48,17 @@ class Database:
             self.save_data()
         else:
             raise ValueError("Пользователь не найден.")
+            
+    def add_command(self, user_id, command_name, command_url):
+        user = self.get_user(user_id)
+        if user:
+            user['commands'].append({'name': command_name, 'url': command_url})
+            self.save_data()
+        else:
+            raise ValueError("Пользователь не найден.")
+
+    def get_commands(self, user_id):
+        user = self.get_user(user_id)
+        if user:
+            return user['commands']
+        return []
