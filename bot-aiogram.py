@@ -82,6 +82,31 @@ async def handle_upusername(message: types.Message):
         await UpdateUsername.new_username.set()
         await message.answer("Введите ваше новое имя пользователя:")
 
+                                                   # Обработчик /newcommand
+@dp.message_handler(commands=['newcommand'])
+async def handle_newcommand(message: types.Message):
+    user_id = message.chat.id
+    if not db.get_user(user_id):
+        await message.answer("Вы еще не зарегистрированы. Введите /start для регистрации.")
+    else:
+        await NewCommand.command_name.set()
+        await message.answer("Введите название новой команды:")
+
+                                                    # Обработчик /commands
+@dp.message_handler(commands=['commands'])
+async def handle_commands(message: types.Message):
+    user_id = message.chat.id
+    user = db.get_user(user_id)
+    if user:
+        commands = db.get_commands(user_id)
+        if commands:
+            response = "Ваши команды:\n" + "\n".join([f"{cmd['name']} - {cmd['url']}" for cmd in commands])
+        else:
+            response = "У вас нет сохраненных команд."
+        await message.answer(response)
+    else:
+        await message.answer("Сначала зарегистрируйтесь с помощью /start.")
+
 
 
 
@@ -140,6 +165,27 @@ async def process_new_username(message: types.Message, state: FSMContext):
         await message.answer("Ваше имя пользователя успешно обновлено!")
     except ValueError as e:
         await message.answer(str(e))
+    
+    await state.finish()
+
+                                                    # Обработчики добавления newcommand
+@dp.message_handler(state=NewCommand.command_name)
+async def process_command_name(message: types.Message, state: FSMContext):
+    await state.update_data(command_name=message.text)
+    await NewCommand.next()
+    await message.answer("Введите URL для новой команды:")
+
+@dp.message_handler(state=NewCommand.command_url)
+async def process_command_url(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        user_id = message.chat.id
+        command_name = data['command_name']
+        command_url = message.text
+        try:
+            db.add_command(user_id, command_name, command_url)
+            await message.answer(f"Команда '{command_name}' успешно добавлена с URL: {command_url}")
+        except ValueError as e:
+            await message.answer(str(e))
     
     await state.finish()
 
