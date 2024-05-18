@@ -106,7 +106,43 @@ async def handle_commands(message: types.Message):
         await message.answer(response)
     else:
         await message.answer("Сначала зарегистрируйтесь с помощью /start.")
+      
+                                                    # Обработчик /deletecommand
+@dp.message_handler(commands=['deletecommand'])
+async def handle_delete_command(message: types.Message):
+    user_id = message.chat.id
+    if not db.get_user(user_id):
+        await message.answer("Вы еще не зарегистрированы. Введите /start для регистрации.")
+    else:
+        await DeleteCommand.command_name.set()
+        await message.answer("Введите название команды, которую хотите удалить:")
+        
+                                                    # Обработчик /deleteprofile
+@dp.message_handler(commands=['deleteprofile'])
+async def handle_delete_user(message: types.Message):
+    user_id = message.chat.id
+    if not db.get_user(user_id):
+        await message.answer("Вы еще не зарегистрированы.")
+    else:
+        try:
+            db.delete_user(user_id)
+            await message.answer("Ваш аккаунт успешно удален.")
+        except ValueError as e:
+            await message.answer(str(e))
 
+                                                    # Обработчик /checkusers
+@dp.message_handler(commands=['checkusers'])
+async def handle_checkusers(message: types.Message):
+    user_id = message.chat.id
+    if str(user_id) == str(config.ADMIN):
+        users = db.get_all_users()
+        if not users:
+            await message.answer("В базе данных нет зарегистрированных пользователей.")
+        else:
+            users_list = "\n".join([f"{user_id}: {name}" for user_id, name in users.items()])
+            await message.answer(f"Зарегистрированные пользователи:\n{users_list}")
+    else:
+        await message.answer(f"Такой команды нет, введите /help")
 
 
 
@@ -186,6 +222,19 @@ async def process_command_url(message: types.Message, state: FSMContext):
             await message.answer(f"Команда '{command_name}' успешно добавлена с URL: {command_url}")
         except ValueError as e:
             await message.answer(str(e))
+    
+    await state.finish()
+
+                                                    # Обработчик deletecommand
+@dp.message_handler(state=DeleteCommand.command_name)
+async def process_delete_command(message: types.Message, state: FSMContext):
+    user_id = message.chat.id
+    command_name = message.text
+    try:
+        db.delete_command(user_id, command_name)
+        await message.answer(f"Команда '{command_name}' успешно удалена.")
+    except ValueError as e:
+        await message.answer(str(e))
     
     await state.finish()
 
