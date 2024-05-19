@@ -4,6 +4,7 @@ import speech_recognition as sr
 import pyttsx3
 import random
 from datetime import datetime, timedelta
+import webbrowser
 
 # Подключаем файл с данными
 filename = "users.json"
@@ -74,7 +75,24 @@ def main():
                         os.system("calc")
                         response = "Открываю калькулятор."
                         print(response)
-                        
+                    elif text.lower() == "открой браузер":
+                        webbrowser.open("http://www.ya.ru")
+                        response = "Открываю браузер."
+                        print(response)
+                    else:
+                        user_commands = users[user_id].get('commands', [])
+                        command_found = False
+                        for command in user_commands:
+                            if text.lower() == command['name'].lower():
+                                webbrowser.open(command['url'])
+                                response = "Открываю"
+                                print(response)
+                                
+                                command_found = True
+                                break
+                        if not command_found:
+                            response = "Команда не распознана."
+                            print(response)
             except sr.UnknownValueError:
                 print("Не удалось распознать речь.")
                 
