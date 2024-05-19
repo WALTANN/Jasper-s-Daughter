@@ -17,7 +17,7 @@ class Database:
         with open(self.filename, 'w') as file:
             json.dump(self.users, file, indent=4)
 
-    def add_user(self, user_id, name, login, password):
+    def add_user(self, user_id, name, login, password, city):
         if str(user_id) in self.users:
             raise ValueError("Пользователь с таким ID уже существует.")
         if any(user['login'] == login for user in self.users.values()):
@@ -26,6 +26,7 @@ class Database:
             'name': name,
             'login': login,
             'password': password,
+            'city': city,
             'commands': []
         }
         self.save_data()
