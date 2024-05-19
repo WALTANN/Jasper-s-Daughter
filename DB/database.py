@@ -49,6 +49,12 @@ class Database:
             self.save_data()
         else:
             raise ValueError("Пользователь не найден.")
+
+    def update_city(self, user_id, new_city):
+        if str(user_id) not in self.users:
+            raise ValueError("Пользователь не найден.")
+        self.users[str(user_id)]['city'] = new_city
+        self.save_data()
             
     def add_command(self, user_id, command_name, command_url):
         user = self.get_user(user_id)
