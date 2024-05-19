@@ -3,6 +3,7 @@ import os
 import speech_recognition as sr
 import pyttsx3
 import random
+from datetime import datetime, timedelta
 
 # Подключаем файл с данными
 filename = "users.json"
@@ -14,7 +15,7 @@ def load_users(filename):
             return json.load(file)
     else:
         return {}
-        
+
 # Функция для аутентификации пользователя в ГП
 def authenticate(users, login, password):
     for user_id, user_info in users.items():
@@ -22,6 +23,11 @@ def authenticate(users, login, password):
             return user_id
     return None
 
+# Функция для получения текущего времени в часовом поясе UTC+3
+def get_current_time_utc_plus_3():
+    current_time = datetime.utcnow() + timedelta(hours=3)
+    return current_time.strftime("%H:%M:%S")
+    
 def main():
     users = load_users(filename)
 
@@ -48,6 +54,10 @@ def main():
                     if text.lower() == "выход":
                         print("Завершение работы голосового помощника.")
                         break
+                    elif text.lower() == "время":
+                        current_time = get_current_time_utc_plus_3()
+                        response = f"{current_time}"
+                        print(response)
                     elif text.lower() == "привет":
                         responses = ["Привет!", "Приветствую!", "Здравствуйте!"]
                         response = random.choice(responses)
