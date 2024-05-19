@@ -26,7 +26,8 @@ class Registration(StatesGroup):
     name = State()
     login = State()
     password = State()
-
+    city = State()
+  
 class UpdatePassword(StatesGroup):
     new_password = State()
 
@@ -162,16 +163,23 @@ async def process_login(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Registration.password)
 async def process_password(message: types.Message, state: FSMContext):
+    await state.update_data(password=message.text)
+    await Registration.next()
+    await message.answer("Теперь введите ваш город:")
+    
+@dp.message_handler(state=Registration.city)
+async def process_password(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['password'] = message.text
+        data['city'] = message.text
 
         user_id = message.chat.id
         name = data['name']
         login = data['login']
         password = data['password']
+        city = data['city']
 
         try:
-            db.add_user(user_id, name, login, password)
+            db.add_user(user_id, name, login, password, city)
             await message.answer("Регистрация успешно завершена!")
         except ValueError as e:
             await message.answer(str(e))
