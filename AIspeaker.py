@@ -28,6 +28,11 @@ def authenticate(users, login, password):
 def get_current_time_utc_plus_3():
     current_time = datetime.utcnow() + timedelta(hours=3)
     return current_time.strftime("%H:%M:%S")
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
     
 def main():
     users = load_users(filename)
@@ -40,6 +45,7 @@ def main():
     user_id = authenticate(users, login, password)
     if user_id:
         print("Авторизация успешна. Голосовой помощник активирован.")
+        speak("Слушаю")
         recognizer = sr.Recognizer()
         
         while True:
@@ -51,34 +57,41 @@ def main():
                     # Используем Google Web Speech API для распознавания
                     text = recognizer.recognize_google(audio, language="ru-RU")
                     print(f"Вы сказали: {text}")
-
+                
                     if text.lower() == "выход":
                         print("Завершение работы голосового помощника.")
+                        speak("Завершение работы")
                         break
                     elif text.lower() == "время":
                         current_time = get_current_time_utc_plus_3()
                         response = f"{current_time}"
                         print(response)
+                        speak(response)
                     elif text.lower() == "привет":
                         responses = ["Привет!", "Приветствую!", "Здравствуйте!"]
                         response = random.choice(responses)
                         print(response)
+                        speak(response)
                     elif text.lower() == "random":
                         random_number = random.randint(0, 10)
                         response = f"Случайное число: {random_number}"
-                        print(response)      
+                        print(response)
+                        speak(response)
                     elif text.lower() == "открой настройки":
                         os.system("control")
                         response = "Открываю настройки."
-                        print(response)     
+                        print(response)  
+                        speak(response)
                     elif text.lower() == "открой калькулятор":
                         os.system("calc")
                         response = "Открываю калькулятор."
                         print(response)
+                        speak(response)
                     elif text.lower() == "открой браузер":
                         webbrowser.open("http://www.ya.ru")
                         response = "Открываю браузер."
                         print(response)
+                        speak(response)
                     else:
                         user_commands = users[user_id].get('commands', [])
                         command_found = False
@@ -87,19 +100,25 @@ def main():
                                 webbrowser.open(command['url'])
                                 response = "Открываю"
                                 print(response)
-                                
+                                speak(response)
                                 command_found = True
                                 break
                         if not command_found:
                             response = "Команда не распознана."
                             print(response)
+                            speak(response)
+
+            
             except sr.UnknownValueError:
                 print("Не удалось распознать речь.")
                 
             except sr.RequestError as e:
                 print(f"Ошибка сервиса распознавания речи; {e}")
+
+    
     else:
         print("Неверный логин или пароль. Пожалуйста, зарегистрируйтесь через телеграм-бота.")
+
 
 if __name__ == "__main__":
     main()
