@@ -193,7 +193,7 @@ async def process_password(message: types.Message, state: FSMContext):
 
         try:
             db.add_user(user_id, name, login, password, city)
-            await message.answer("Регистрация успешно завершена!")
+            await message.answer("Регистрация успешно завершена!\nЧтобы узнать мой функционал, введите /help")
         except ValueError as e:
             await message.answer(str(e))
     
