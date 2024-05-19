@@ -2,7 +2,7 @@ import json
 import os
 import speech_recognition as sr
 import pyttsx3
-
+import random
 
 # Подключаем файл с данными
 filename = "users.json"
@@ -33,7 +33,25 @@ def main():
     user_id = authenticate(users, login, password)
     if user_id:
         print("Авторизация успешна. Голосовой помощник активирован.")
+        recognizer = sr.Recognizer()
+        
+        while True:
+            try:
+                with sr.Microphone() as source:
+                    print("Скажите что-нибудь...")
+                    audio = recognizer.listen(source)
 
+                    # Используем Google Web Speech API для распознавания
+                    text = recognizer.recognize_google(audio, language="ru-RU")
+                    print(f"Вы сказали: {text}")
+
+                    if text.lower() == "выход":
+                        print("Завершение работы голосового помощника.")
+                        break
+                    elif text.lower() == "привет":
+                        responses = ["Привет!", "Приветствую!", "Здравствуйте!"]
+                        response = random.choice(responses)
+                        print(response)
     else:
         print("Неверный логин или пароль. Пожалуйста, зарегистрируйтесь через телеграм-бота.")
 
