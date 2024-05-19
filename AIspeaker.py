@@ -62,6 +62,18 @@ def main():
                         responses = ["Привет!", "Приветствую!", "Здравствуйте!"]
                         response = random.choice(responses)
                         print(response)
+                    elif text.lower() == "random":
+                        random_number = random.randint(0, 10)
+                        response = f"Случайное число: {random_number}"
+                        print(response)      
+                    elif text.lower() == "открой настройки":
+                        os.system("control")
+                        response = "Открываю настройки."
+                        print(response)     
+                    elif text.lower() == "открой калькулятор":
+                        os.system("calc")
+                        response = "Открываю калькулятор."
+                        print(response)
                         
             except sr.UnknownValueError:
                 print("Не удалось распознать речь.")
