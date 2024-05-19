@@ -41,6 +41,9 @@ class NewCommand(StatesGroup):
 class DeleteCommand(StatesGroup):
     command_name = State()
 
+class UpdateCity(StatesGroup):
+    new_city = State()
+
                                                     # Обработчик /start
 @dp.message_handler(commands=['start'])
 async def handle_start(message: types.Message):
@@ -146,6 +149,16 @@ async def handle_checkusers(message: types.Message):
         await message.answer(f"Такой команды нет, введите /help")
 
 
+                                                    # Обработчик /updatecity
+@dp.message_handler(commands=['updatecity'])
+async def handle_upcity(message: types.Message):
+    user_id = message.chat.id
+    if not db.get_user(user_id):
+        await message.answer("Вы еще не зарегистрированы. Введите /start для регистрации.")
+    else:
+        await UpdateCity.new_city.set()
+        await message.answer("Введите ваш новый город:")
+
 
                                                     # Обработчики FSM
                                                     # Обработчки регистрации
@@ -245,6 +258,20 @@ async def process_delete_command(message: types.Message, state: FSMContext):
         await message.answer(str(e))
     
     await state.finish()
+
+                                                    # FSM Обработчик updatecity
+@dp.message_handler(state=UpdateCity.new_city)
+async def process_new_city(message: types.Message, state: FSMContext):
+    user_id = message.chat.id
+    new_city = message.text
+    try:
+        db.update_city(user_id, new_city)
+        await message.answer("Ваш город успешно обновлен!")
+    except ValueError as e:
+        await message.answer(str(e))
+    
+    await state.finish()
+
 
 @dp.message_handler()
 async def handle_text(message: types.Message):
