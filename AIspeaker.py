@@ -52,6 +52,12 @@ def main():
                         responses = ["Привет!", "Приветствую!", "Здравствуйте!"]
                         response = random.choice(responses)
                         print(response)
+                        
+            except sr.UnknownValueError:
+                print("Не удалось распознать речь.")
+                
+            except sr.RequestError as e:
+                print(f"Ошибка сервиса распознавания речи; {e}")
     else:
         print("Неверный логин или пароль. Пожалуйста, зарегистрируйтесь через телеграм-бота.")
 
